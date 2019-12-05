@@ -22,6 +22,25 @@ app.get("/api/users", async (req, res) => {
    }
 });
 
+/**
+ * GET /api/users/:id
+ * Returns the user object with the specified id.
+ * @param {number} id
+ */
+app.get("/api/users/:id", async (req, res) => {
+   try {
+      const user = await db.findById(Number(req.params.id));
+
+      if (user) {
+         res.status(200).json(user);
+      } else {
+         res.status(404).json({ message: "The user with the specified ID does not exist." });
+      }
+   } catch (err) {
+      res.status(500).json({ errorMessage: "The user information could not be retrieved." });
+   }
+});
+
 //Start server
 const port = 8080;
 const host = "127.0.0.1"; //another way to say "localhost"
