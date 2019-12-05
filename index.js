@@ -67,18 +67,6 @@ app.get("/api/users/:id", async (req, res) => {
  * @returns {Object} oldUser
  */
 app.delete("/api/users/:id", async (req, res) => {
-   //remove(): the remove method accepts an id as it's first parameter and upon 
-   //successfully deleting the user from the database it returns the number of 
-   //records deleted.
-   /*
-      If the user with the specified id is not found:
-         respond with HTTP status code 404 (Not Found).
-         return the following JSON object: { message: "The user with the specified ID does not exist." }.
-
-      If there's an error in removing the user from the database:
-         respond with HTTP status code 500.
-         return the following JSON object: { errorMessage: "The user could not be removed" }.
-   */
    try {
       const oldUser = await db.findById(Number(req.params.id));
       if (!oldUser) {
@@ -93,7 +81,47 @@ app.delete("/api/users/:id", async (req, res) => {
    }
 });
 
+/**
+ * PUT /api/users/:id
+ * Updates the user with the specified id using data from the request body. 
+ * Returns the modified document, NOT the original.
+ * @param {number} id
+ * @returns {Object} updatedUser
+ */
+app.put("/api/users/:id", (req, res) => {
+   /*
+   If the user with the specified id is not found:
+      respond with HTTP status code 404 (Not Found).
+      return the following JSON object: { message: "The user with the specified 
+      ID does not exist." }.
+      
+   If the request body is missing the name or bio property:
+      respond with HTTP status code 400 (Bad Request).
+      return the following JSON response: { errorMessage: "Please provide name 
+      and bio for the user." }.
+   
+   If there's an error when updating the user:
+      respond with HTTP status code 500.
+      return the following JSON object: { errorMessage: "The user information 
+      could not be modified." }.
+      
+   If the user is found and the new information is valid:
+      update the user document in the database using the new information sent in the request body.
+      respond with HTTP status code 200 (OK).
+      return the newly updated user document.
+   */
 
+   /*
+      update(): accepts two arguments, the first is the id of the user to update 
+      and the second is an object with the changes to apply. It returns the count 
+      of updated records. If the count is 1 it means the record was updated 
+      correctly.
+   */
+   const result = db.update(24, {});
+   console.log(result);
+
+   res.status(200).json(req.body);
+});
 
 //Start server
 const port = 8080;
