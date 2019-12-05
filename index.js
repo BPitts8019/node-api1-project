@@ -88,22 +88,13 @@ app.delete("/api/users/:id", async (req, res) => {
  * @param {number} id
  * @returns {Object} updatedUser
  */
-app.put("/api/users/:id", (req, res) => {
+app.put("/api/users/:id", async (req, res) => {
    /*
-   If the user with the specified id is not found:
-      respond with HTTP status code 404 (Not Found).
-      return the following JSON object: { message: "The user with the specified 
-      ID does not exist." }.
-      
    If the request body is missing the name or bio property:
       respond with HTTP status code 400 (Bad Request).
       return the following JSON response: { errorMessage: "Please provide name 
       and bio for the user." }.
    
-   If there's an error when updating the user:
-      respond with HTTP status code 500.
-      return the following JSON object: { errorMessage: "The user information 
-      could not be modified." }.
       
    If the user is found and the new information is valid:
       update the user document in the database using the new information sent in the request body.
@@ -117,10 +108,28 @@ app.put("/api/users/:id", (req, res) => {
       of updated records. If the count is 1 it means the record was updated 
       correctly.
    */
-   const result = db.update(24, {});
-   console.log(result);
 
-   res.status(200).json(req.body);
+   try {
+      console.log(`req.params.id: ${req.params.id}`);
+      const user = await db.findById(Number(req.params.id));
+      if (!user) {
+         return res.status(404).json({ message: "The user with the specified ID does not exist." });
+      }
+
+      if (!req.body.name || !req.body.bio) {
+         return res.status(400).json({ errorMessage: "Please provide name and bio for the user." });
+      }
+
+      const result = await db.update(24, {
+         name: "Bobba Fett"
+      });
+      console.log(result);
+   
+      res.status(200).json(req.body);
+   } catch (err) {
+      console.err(err);
+      res.status().json({ errorMessage: "The user information could not be modified." });
+   }
 });
 
 //Start server
