@@ -7,13 +7,32 @@ const app = express();
 app.use(express.json());
 
 /**
+ * POST /api/users
+ * Creates a user using the information sent inside the request body.
+ * @returns {Object} The user that was created
+ */
+app.post("/api/users", async (req, res) => {
+   if (!req.body.name || !req.body.bio) {
+      return res.status(400).json({ errorMessage: "Please provide name and bio for the user." });
+   }
+
+   try {
+      const newId = await db.insert(req.body);
+      const newUser = await db.findById(newId.id);
+      
+      res.status(200).json(newUser);
+   } catch (err) {
+      res.status(500).json({ errorMessage: "There was an error while saving the user to the database" });
+   }
+});
+
+/**
  * GET /api/users
  * Returns an array of all the user objects contained in the database.
  * @returns {Array}
  */
 app.get("/api/users", async (req, res) => {
    const users = await db.find();
-   console.log(users);
 
    if (users) {
       res.status(200).json(users);
