@@ -89,29 +89,9 @@ app.delete("/api/users/:id", async (req, res) => {
  * @returns {Object} updatedUser
  */
 app.put("/api/users/:id", async (req, res) => {
-   /*
-   If the request body is missing the name or bio property:
-      respond with HTTP status code 400 (Bad Request).
-      return the following JSON response: { errorMessage: "Please provide name 
-      and bio for the user." }.
-   
-      
-   If the user is found and the new information is valid:
-      update the user document in the database using the new information sent in the request body.
-      respond with HTTP status code 200 (OK).
-      return the newly updated user document.
-   */
-
-   /*
-      update(): accepts two arguments, the first is the id of the user to update 
-      and the second is an object with the changes to apply. It returns the count 
-      of updated records. If the count is 1 it means the record was updated 
-      correctly.
-   */
-
    try {
-      console.log(`req.params.id: ${req.params.id}`);
-      const user = await db.findById(Number(req.params.id));
+      const userId = Number(req.params.id);
+      let user = await db.findById(userId);
       if (!user) {
          return res.status(404).json({ message: "The user with the specified ID does not exist." });
       }
@@ -120,12 +100,11 @@ app.put("/api/users/:id", async (req, res) => {
          return res.status(400).json({ errorMessage: "Please provide name and bio for the user." });
       }
 
-      const result = await db.update(24, {
-         name: "Bobba Fett"
-      });
-      console.log(result);
+      const result = await db.update(userId, req.body);
+      // console.log(`Num Files updated: ${result}`);
    
-      res.status(200).json(req.body);
+      user = await db.findById(userId);
+      res.status(200).json(user);
    } catch (err) {
       console.err(err);
       res.status().json({ errorMessage: "The user information could not be modified." });
