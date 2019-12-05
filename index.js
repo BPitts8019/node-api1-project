@@ -60,6 +60,41 @@ app.get("/api/users/:id", async (req, res) => {
    }
 });
 
+/**
+ * DELETE /api/users/:id
+ * Removes the user with the specified id and returns the deleted user.
+ * @param {number} id
+ * @returns {Object} oldUser
+ */
+app.delete("/api/users/:id", async (req, res) => {
+   //remove(): the remove method accepts an id as it's first parameter and upon 
+   //successfully deleting the user from the database it returns the number of 
+   //records deleted.
+   /*
+      If the user with the specified id is not found:
+         respond with HTTP status code 404 (Not Found).
+         return the following JSON object: { message: "The user with the specified ID does not exist." }.
+
+      If there's an error in removing the user from the database:
+         respond with HTTP status code 500.
+         return the following JSON object: { errorMessage: "The user could not be removed" }.
+   */
+   try {
+      const oldUser = await db.findById(Number(req.params.id));
+      if (!oldUser) {
+         return res.status(404).json({ message: "The user with the specified ID does not exist." });
+      }
+
+      const result = await db.remove(oldUser.id);
+      res.status(200).json(oldUser);
+   } catch (err) {
+      console.log(err);
+      res.status(500).json({ errorMessage: "The user could not be removed" });
+   }
+});
+
+
+
 //Start server
 const port = 8080;
 const host = "127.0.0.1"; //another way to say "localhost"
