@@ -25,6 +25,20 @@ app.get(usersRoute, async (req, res) => {
    });
 });
 
+app.get(`${usersRoute}/:id`, async (req, res) => {
+   const { id } = req.params;
+   const user = await db.findById(id);
+
+   if (user) {
+      res.send(user);
+      return;
+   }
+
+   res.status(404).send({
+      message: "The user with the specified ID does not exist.",
+   });
+});
+
 app.listen(port, () => {
    console.log(`Server is running on port: ${port}`);
 });
