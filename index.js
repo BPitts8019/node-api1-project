@@ -12,6 +12,30 @@ app.get("/", (req, res) => {
    res.send({ message: "Welcome to the Node API-1 project" });
 });
 
+app.post(usersRoute, async (req, res) => {
+   if (!req.body.name || !req.body.bio) {
+      res.status(400).send({
+         errorMessage: "Please provide name and bio for the user.",
+      });
+      return;
+   }
+
+   const { id } = await db.insert({
+      name: req.body.name,
+      bio: req.body.bio,
+   });
+   const user = await db.findById(id);
+
+   if (user) {
+      res.status(201).send(user);
+      return;
+   }
+
+   res.status(500).send({
+      message: "Something went wrong while creating the new user.",
+   });
+});
+
 app.get(usersRoute, async (req, res) => {
    const users = await db.find();
 
