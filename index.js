@@ -66,6 +66,44 @@ app.get(`${usersRoute}/:id`, async (req, res) => {
    }
 });
 
+app.put(`${usersRoute}/:id`, async (req, res) => {
+   if (!req.body.name || !req.body.bio) {
+      res.status(400).send({
+         errorMessage: "Please provide name and bio for the user.",
+      });
+      return;
+   }
+
+   const { id } = req.params;
+   try {
+      const user = await db.findById(id);
+      if (!user) {
+         res.status(404).send({
+            message: "The user with the specified ID does not exist.",
+         });
+         return;
+      }
+
+      const numRecs = await db.update(id, {
+         name: req.body.name,
+         bio: req.body.bio,
+      });
+      if (numRecs <= 0) {
+         res.status(500).send({
+            errorMessage: "The user information could not be modified.",
+         });
+         return;
+      }
+
+      const updatedUser = await db.findById(id);
+      res.send(updatedUser);
+   } catch (error) {
+      res.status(500).send({
+         errorMessage: "The user information could not be modified.",
+      });
+   }
+});
+
 app.delete(`${usersRoute}/:id`, async (req, res) => {
    const { id } = req.params;
 
@@ -82,7 +120,7 @@ app.delete(`${usersRoute}/:id`, async (req, res) => {
          message: "The user with the specified ID does not exist.",
       });
    } catch (error) {
-      res.status(500).send({ errorMessage: "The user could not be removed" });
+      res.status(500).send({ errorMessage: "The user could not be removed." });
    }
 });
 
