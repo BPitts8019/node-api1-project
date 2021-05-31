@@ -1,14 +1,21 @@
 // implement your API here
 const express = require("express");
-const server = express();
+const db = require("./data/db");
+
+const app = express();
 const port = 8080;
 
-server.use(express.json());
+app.use(express.json());
 
-server.get("/", (req, res) => {
+app.get("/", (req, res) => {
    res.send({ message: "Welcome to the Node API-1 project" });
 });
 
-server.listen(port, () => {
+app.get("/api/users", async (req, res) => {
+   const users = await db.find();
+   res.send(users);
+});
+
+app.listen(port, () => {
    console.log(`Server is running on port: ${port}`);
 });
