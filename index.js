@@ -107,7 +107,7 @@ app.put("/api/users/:id", async (req, res) => {
       res.status(200).json(user);
    } catch (err) {
       console.err(err);
-      res.status().json({ errorMessage: "The user information could not be modified." });
+      res.status(500).json({ errorMessage: "The user information could not be modified." });
    }
 });
 
