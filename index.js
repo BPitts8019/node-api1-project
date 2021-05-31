@@ -67,18 +67,6 @@ app.get("/api/users/:id", async (req, res) => {
  * @returns {Object} oldUser
  */
 app.delete("/api/users/:id", async (req, res) => {
-   //remove(): the remove method accepts an id as it's first parameter and upon 
-   //successfully deleting the user from the database it returns the number of 
-   //records deleted.
-   /*
-      If the user with the specified id is not found:
-         respond with HTTP status code 404 (Not Found).
-         return the following JSON object: { message: "The user with the specified ID does not exist." }.
-
-      If there's an error in removing the user from the database:
-         respond with HTTP status code 500.
-         return the following JSON object: { errorMessage: "The user could not be removed" }.
-   */
    try {
       const oldUser = await db.findById(Number(req.params.id));
       if (!oldUser) {
@@ -93,7 +81,35 @@ app.delete("/api/users/:id", async (req, res) => {
    }
 });
 
+/**
+ * PUT /api/users/:id
+ * Updates the user with the specified id using data from the request body. 
+ * Returns the modified document, NOT the original.
+ * @param {number} id
+ * @returns {Object} updatedUser
+ */
+app.put("/api/users/:id", async (req, res) => {
+   try {
+      const userId = Number(req.params.id);
+      let user = await db.findById(userId);
+      if (!user) {
+         return res.status(404).json({ message: "The user with the specified ID does not exist." });
+      }
 
+      if (!req.body.name || !req.body.bio) {
+         return res.status(400).json({ errorMessage: "Please provide name and bio for the user." });
+      }
+
+      const result = await db.update(userId, req.body);
+      // console.log(`Num Files updated: ${result}`);
+   
+      user = await db.findById(userId);
+      res.status(200).json(user);
+   } catch (err) {
+      console.err(err);
+      res.status(500).json({ errorMessage: "The user information could not be modified." });
+   }
+});
 
 //Start server
 const port = 8080;
