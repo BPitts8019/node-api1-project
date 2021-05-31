@@ -66,6 +66,26 @@ app.get(`${usersRoute}/:id`, async (req, res) => {
    }
 });
 
+app.delete(`${usersRoute}/:id`, async (req, res) => {
+   const { id } = req.params;
+
+   try {
+      const user = await db.findById(id);
+
+      if (user) {
+         await db.remove(id);
+         res.send(user);
+         return;
+      }
+
+      res.status(404).send({
+         message: "The user with the specified ID does not exist.",
+      });
+   } catch (error) {
+      res.status(500).send({ errorMessage: "The user could not be removed" });
+   }
+});
+
 app.listen(port, () => {
    console.log(`Server is running on port: ${port}`);
 });
